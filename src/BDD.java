@@ -10,7 +10,7 @@ public class BDD {
 
     public Node BDD_create(String booleanFunction, String order) {
         if(root == null) {
-            root = new Node(booleanFunction);
+            root = new Node(booleanFunction, 0);
             allNodes.put(booleanFunction, root);
             numberOfNodesAfterReduction++;
         }
@@ -23,7 +23,7 @@ public class BDD {
         return root;
     }
 
-    private Node BDD_recursive(Node currentNode, String booleanFunction, int level,String order) {
+    private Node BDD_recursive(Node currentNode, String booleanFunction, int level, String order) {
         Node zeroNode = new Node("0");
         Node oneNode = new Node("1");
         System.out.println("Boolean function: " + booleanFunction);
@@ -36,9 +36,7 @@ public class BDD {
             return allNodes.get("0");
         }
 
-
-        if(!(booleanFunction.contains(String.valueOf(order.charAt(level))) || booleanFunction.contains("!" + order.charAt(level))))  level++;
-
+        if (!(booleanFunction.contains(String.valueOf(order.charAt(level))) || booleanFunction.contains("!" + order.charAt(level))))  level++;
         String negativeLetter = "!" + order.charAt(level);
         System.out.println(negativeLetter);
         booleanFunction = booleanFunction.replaceAll(negativeLetter, "0");
@@ -92,7 +90,7 @@ public class BDD {
 
 
         if (allNodes.get(oneExpressions) == null) {
-            allNodes.put(oneExpressions, new Node(oneExpressions));
+            allNodes.put(oneExpressions, new Node(oneExpressions, level + 1));
             currentNode.one = allNodes.get(oneExpressions);
             currentNode.one = BDD_recursive(currentNode.one, oneExpressions, level + 1, order);
         } else if (allNodes.get(oneExpressions) != null) {
@@ -100,7 +98,7 @@ public class BDD {
         }
 
         if (allNodes.get(zeroExpressions) == null) {
-            allNodes.put(zeroExpressions, new Node(zeroExpressions));
+            allNodes.put(zeroExpressions, new Node(zeroExpressions, level + 1));
             currentNode.zero = allNodes.get(zeroExpressions);
             currentNode.zero = BDD_recursive(currentNode.zero, zeroExpressions, level + 1, order);
         } else if (allNodes.get(zeroExpressions) != null) {
@@ -142,13 +140,16 @@ public class BDD {
     }
 
     public String BDD_use(BDD bdd, String input) {
-        System.out.println("Input" + input);
         Node currentNode = bdd.root;
+        int currentInputPosition = 0;
+
         for (char number : input.toCharArray()) {
             if (currentNode.variable.equals("1")) return "1";
             else if (currentNode.variable.equals("0")) return "0";
+            if (currentNode.level > currentInputPosition) continue;
             if (number == '1') currentNode = currentNode.one;
             else if (number == '0') currentNode = currentNode.zero;
+            currentInputPosition++;
         }
         return "-1";
     }

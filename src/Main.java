@@ -8,13 +8,14 @@ public class Main {
         BDD bdd = new BDD();
         String bf = "A+A*!B*C+!A*C+A+A*B+C*B+A*B";
         String bff = "A*B+A*C+B*C";
+        // !W+C+A+Y*!H+!V+!B*H+B*V+I*H+X*D+B*S+P+!Y+!X+D*B+J+!L*!E+R*!H+!K+!R*B+A*D+!D+!H+X*I+!R+J+!O+K+!P*G+!H+K+!U*!J+!E+K*E
         String order = "ABC";
         if(isBooleanFunctionCorrect(bf)) {
             System.out.println("DNF: "  + bf + " is correct.");
-            bdd.BDD_create("!W+C+A+Y*!H+!V+!B*H+B*V+I*H+X*D+B*S+P+!Y+!X+D*B+J+!L*!E+R*!H+!K+!R*B+A*D+!D+!H+X*I+!R+J+!O+K+!P*G+!H+K+!U*!J+!E+K*E", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            bdd.BDD_create("A+A*!B*C+!A*C+A+A*B+C*B+A*B", "ABC");
             System.out.println("Before reduction: " + bdd.numberOfNodesBeforeReduction + " After reduction: " + bdd.numberOfNodesAfterReduction);
-            BDD bdd1 = new BDD();
-            bdd1.BDD_create_with_best_order(bf);
+//            BDD bdd1 = new BDD();
+//            bdd1.BDD_create_with_best_order(bf);
             BDD bdd2 = new BDD();
             System.out.println("BDD use: " + bdd2.BDD_use(bdd, "001"));
 
