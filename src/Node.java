@@ -12,11 +12,4 @@ public class Node {
         this.variable = variable;
         this.level = level;
     }
-
-    public Node(String variable, Node zero, Node one, int level) {
-        this.variable = variable;
-        this.zero = zero;
-        this.one = one;
-        this.level = level;
-    }
 }

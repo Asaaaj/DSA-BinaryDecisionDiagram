@@ -5,6 +5,7 @@ public class BDD {
     int numberOfVariables = 0;
     int numberOfNodesBeforeReduction = 0;
     int numberOfNodesAfterReduction = 0;
+    public String order = "";
     public Node root = null;
     HashMap<String, Node> allNodes = new HashMap<>();
 
@@ -17,6 +18,7 @@ public class BDD {
         else return root;
 
         root = BDD_recursive(root, booleanFunction, 0, order);
+        this.order = order;
         numberOfVariables = order.length();
         numberOfNodesBeforeReduction = (int) Math.pow(2, numberOfVariables + 1) - 1;
         numberOfNodesAfterReduction = allNodes.size();
@@ -26,7 +28,6 @@ public class BDD {
     private Node BDD_recursive(Node currentNode, String booleanFunction, int level, String order) {
         Node zeroNode = new Node("0");
         Node oneNode = new Node("1");
-        System.out.println("Boolean function: " + booleanFunction);
         if (booleanFunction.equals("1")) {
             allNodes.putIfAbsent("1", oneNode);
             return allNodes.get("1");
@@ -36,12 +37,10 @@ public class BDD {
             return allNodes.get("0");
         }
 
-        if (!(booleanFunction.contains(String.valueOf(order.charAt(level))) || booleanFunction.contains("!" + order.charAt(level))))  level++;
+        while (!(booleanFunction.contains(String.valueOf(order.charAt(level))) || booleanFunction.contains("!" + order.charAt(level))))  level++;
         String negativeLetter = "!" + order.charAt(level);
-        System.out.println(negativeLetter);
         booleanFunction = booleanFunction.replaceAll(negativeLetter, "0");
         booleanFunction = booleanFunction.replaceAll(String.valueOf(order.charAt(level)), "1");
-        System.out.println(booleanFunction);
 
         String[] expressions = booleanFunction.split("\\+");
 
@@ -130,7 +129,7 @@ public class BDD {
         return currentNode;
     }
 
-    public Node BDD_create_with_best_order(String booleanFunction) {
+    public BDD BDD_create_with_best_order(String booleanFunction) {
         HashMap<Integer, BDD> allBDDs = new HashMap<>();
         List<Integer> keys = new ArrayList<>();
         String order = "";
@@ -141,7 +140,6 @@ public class BDD {
         }
 
         for (int numberOfVariables = 0; numberOfVariables < order.length(); numberOfVariables++) {
-            System.out.println("Order: " + order);
             BDD newBDD = new BDD();
             newBDD.BDD_create(booleanFunction, order);
             allBDDs.put(newBDD.numberOfNodesAfterReduction, newBDD);
@@ -150,28 +148,27 @@ public class BDD {
             char firstLetter = order.charAt(0);
             order = order.substring(1) + firstLetter;
         }
-        return allBDDs.get(Collections.min(keys)).root;
+        return allBDDs.get(Collections.min(keys));
     }
 
     public String BDD_use(BDD bdd, String input) {
         Node currentNode = bdd.root;
         int currentInputPosition = 0;
 
-        for (char number : input.toCharArray()) {
+        for (int index = 0; index < input.length(); index++) {
+            char number = input.charAt(index);
             if (currentNode.variable.equals("1")) return "1";
             else if (currentNode.variable.equals("0")) return "0";
-            if (currentNode.level > currentInputPosition) continue;
+            if (currentNode.level > currentInputPosition) {
+                currentInputPosition++;
+                continue;
+            }
             if (number == '1') currentNode = currentNode.one;
             else if (number == '0') currentNode = currentNode.zero;
             currentInputPosition++;
         }
+        if (currentNode.variable.equals("1")) return "1";
+        else if (currentNode.variable.equals("0")) return "0";
         return "-1";
-    }
-
-    private void resetBDD() {
-        root = null;
-        numberOfNodesAfterReduction = 0;
-        numberOfNodesBeforeReduction = 0;
-        allNodes = new HashMap<>();
     }
 }

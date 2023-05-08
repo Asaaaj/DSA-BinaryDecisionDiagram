@@ -1,47 +1,97 @@
 import java.time.Duration;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("DSA - Zadanie 2");
 
-        BDD bdd = new BDD();
-        String bf = "A+A*!B*C+!A*C+A+A*B+C*B+A*B";
-        String bff = "A*B+A*C+B*C";
-        // !W+C+A+Y*!H+!V+!B*H+B*V+I*H+X*D+B*S+P+!Y+!X+D*B+J+!L*!E+R*!H+!K+!R*B+A*D+!D+!H+X*I+!R+J+!O+K+!P*G+!H+K+!U*!J+!E+K*E
-        String order = "ABC";
-        bdd.BDD_create("A*B*C*E*!D+H*!J*G*I*F+L*N*K*!M+P*!O*Q*R", "EJDFHPIBAQNOKRCLMG");
-        System.out.println("Before reduction: " + bdd.numberOfNodesBeforeReduction + " After reduction: " + bdd.numberOfNodesAfterReduction);
-//      BDD bdd1 = new BDD();
-//      bdd1.BDD_create_with_best_order(bf);
-        BDD bdd2 = new BDD();
-        System.out.println("BDD use: " + bdd2.BDD_use(bdd, "001"));
-
-        for (int i = 0; i < 10; i++) {
-            System.out.println("i: " + i + " : " + generateBooleanFunction(3));
+        Scanner sc = new Scanner(System.in);
+        int scanner = 0;
+        while (scanner != 4) {
+            System.out.println("Choose operation: \n(1) - BDD_create\n(2) - BDD_create_with_best_order\n(3) - BDD_use\n\n (4) - EXIT");
+            scanner = sc.nextInt();
+            switch (scanner) {
+                case 1 -> {
+                    System.out.println("Number of variables: ");
+                    int numberOfVariables = sc.nextInt();
+                    System.out.println("Number of tests: ");
+                    int numberOfTests = sc.nextInt();
+                    for (int number = 0; number < numberOfTests; number++) {
+                        BDD bdd = new BDD();
+                        String booleanFunction = generateBooleanFunction(numberOfVariables);
+                        bdd.BDD_create(booleanFunction, getOrderOfBooleanFunction(booleanFunction));
+                        System.out.println("TEST #" + (number + 1) + " of " + numberOfTests);
+                        System.out.println("DNF: " + booleanFunction + "\nOrder: " + bdd.order + "\nNumber of variables: " + bdd.numberOfVariables + "\nNumber of Nodes Before Reduction: " + bdd.numberOfNodesBeforeReduction + "\nNumber of Nodes After Reduction: " + bdd.numberOfNodesAfterReduction);
+                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\n\n");
+                    }
+                }
+                case 2 -> {
+                    System.out.println("Number of variables: ");
+                    int numberOfVariables = sc.nextInt();
+                    System.out.println("Number of tests: ");
+                    int numberOfTests = sc.nextInt();
+                    for (int number = 0; number < numberOfTests; number++) {
+                        System.out.println("TEST #" + (number + 1) + " of " + numberOfTests);
+                        BDD bdd = new BDD();
+                        String booleanFunction = generateBooleanFunction(numberOfVariables);
+                        bdd = bdd.BDD_create_with_best_order(booleanFunction);
+                        System.out.println("DNF: " + booleanFunction + "\nBest Order: " + bdd.order + "\nNumber of variables: " + bdd.numberOfVariables + "\nNumber of Nodes Before Reduction: " + bdd.numberOfNodesBeforeReduction + "\nNumber of Nodes After Reduction: " + bdd.numberOfNodesAfterReduction);
+                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\n\n");
+                    }
+                }
+                case 3 -> {
+                    System.out.println("Number of variables: ");
+                    int numberOfVariables = sc.nextInt();
+                    System.out.println("Number of tests: ");
+                    int numberOfTests = sc.nextInt();
+                    for (int number = 0; number < numberOfTests; number++) {
+                        BDD bdd = new BDD();
+                        String booleanFunction = generateBooleanFunction(numberOfVariables);
+                        String useIpnut = generateUseFunction(booleanFunction);
+                        bdd.BDD_create(booleanFunction, getOrderOfBooleanFunction(booleanFunction));
+                        String output = bdd.BDD_use(bdd, useIpnut);
+                        System.out.println("TEST #" + (number + 1) + " of " + numberOfTests);
+                        System.out.println("DNF: " + booleanFunction + "\nOrder: " + bdd.order + "\nNumber of variables: " + bdd.numberOfVariables + "\nNumber of Nodes Before Reduction: " + bdd.numberOfNodesBeforeReduction + "\nNumber of Nodes After Reduction: " + bdd.numberOfNodesAfterReduction);
+                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%");
+                        System.out.println("Use input: " + useIpnut + "\nOutput: " + output + "\n\n");
+                    }
+                }
+            }
         }
 
-
-
-
-
-    }
-    // CHECK IF BOOLEAN FUNCTION IS CORRECT
-    public static boolean isBooleanFunctionCorrect(String bf) {
-        return bf != null && !bf.isEmpty() && !bf.matches("[^A-Z&&^\\Q*\\E^\\Q+\\E^\\Q!\\E]");
     }
 
+    // BOOLEAN FUNCTION GENERATOR
     public static String generateBooleanFunction(int numberOfLetters) {
         Random random = new Random();
+
+        StringBuilder letterBuilder = new StringBuilder();
+        for (int i = 0; i < numberOfLetters; i++) {
+            char letter = (char) (random.nextInt('Z' - 'A') + 'A');
+            if(letterBuilder.toString().contains(String.valueOf(letter))) {
+                i--;
+            }
+            else {
+                letterBuilder.append(letter);
+            }
+        }
+
+        String letters = letterBuilder.toString();
+
         StringBuilder booleanFunction = new StringBuilder();
-        int numberOfExpressions = random.nextInt(50 - 1) + 1;
+        int numberOfExpressions = random.nextInt(20 - 1) + 1;
         for (int countOfExpression = 0; countOfExpression < numberOfExpressions; countOfExpression++) {
             StringBuilder expression = new StringBuilder();
             int lengthOfExpression = random.nextInt(numberOfLetters - 1) + 1;
             for (int length = 0; length < lengthOfExpression; length++) {
-                char letter = (char) (random.nextInt('Z' - 'A') + 'A');
+                int indexOfLetter =  random.nextInt(numberOfLetters);
+                if (String.valueOf(expression).contains(String.valueOf(letters.charAt(indexOfLetter)))) {
+                    length--;
+                    continue;
+                }
                 if (random.nextBoolean()) expression.append("!");
-                expression.append(letter);
+                expression.append(letters.charAt(indexOfLetter));
                 if (length < lengthOfExpression - 1) expression.append("*");
             }
             booleanFunction.append(expression);
@@ -50,6 +100,7 @@ public class Main {
         return booleanFunction.toString();
     }
 
+    //GETTING ALPHABETICAL ORDER OF BOOLEAN FUNCTION
     public static String getOrderOfBooleanFunction(String booleanFunction) {
         String order = "";
 
@@ -58,5 +109,16 @@ public class Main {
             if(booleanFunction.contains(charToString)) order += charToString;
         }
         return order;
+    }
+
+    public static String generateUseFunction(String booleanFunction) {
+        Random random = new Random();
+        String order = getOrderOfBooleanFunction(booleanFunction);
+        StringBuilder useFunctionBuilder = new StringBuilder();
+
+        for (int index = 0; index < order.length(); index++) {
+            useFunctionBuilder.append(random.nextInt(2));
+        }
+        return useFunctionBuilder.toString();
     }
 }
