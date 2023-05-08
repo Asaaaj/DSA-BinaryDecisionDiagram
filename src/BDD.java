@@ -92,7 +92,11 @@ public class BDD {
         if (allNodes.get(oneExpressions) == null) {
             allNodes.put(oneExpressions, new Node(oneExpressions, level + 1));
             currentNode.one = allNodes.get(oneExpressions);
-            currentNode.one = BDD_recursive(currentNode.one, oneExpressions, level + 1, order);
+            int oneExressionLevel = level;
+            while (oneExressionLevel + 1 < order.length() && !oneExpressions.contains(String.valueOf(order.charAt(oneExressionLevel + 1)))) {
+                oneExressionLevel++;
+            }
+            currentNode.one = BDD_recursive(currentNode.one, oneExpressions, oneExressionLevel + 1, order);
         } else if (allNodes.get(oneExpressions) != null) {
             currentNode.one = allNodes.get(oneExpressions);
         }
@@ -100,17 +104,27 @@ public class BDD {
         if (allNodes.get(zeroExpressions) == null) {
             allNodes.put(zeroExpressions, new Node(zeroExpressions, level + 1));
             currentNode.zero = allNodes.get(zeroExpressions);
-            currentNode.zero = BDD_recursive(currentNode.zero, zeroExpressions, level + 1, order);
+            int zeroExressionLevel = level;
+            while (zeroExressionLevel + 1 < order.length() && !zeroExpressions.contains(String.valueOf(order.charAt(zeroExressionLevel + 1)))) {
+                zeroExressionLevel++;
+            }
+            currentNode.zero = BDD_recursive(currentNode.zero, zeroExpressions, zeroExressionLevel + 1, order);
         } else if (allNodes.get(zeroExpressions) != null) {
             currentNode.zero = allNodes.get(zeroExpressions);
         }
 
-
-
-        if ((currentNode.one == currentNode.zero) && (currentNode.one != allNodes.get("0") || currentNode.one != allNodes.get("1"))) {
+        if ((currentNode.one == currentNode.zero) && (currentNode.one != allNodes.get("0") && currentNode.one != allNodes.get("1"))) {
             allNodes.remove(currentNode.one.variable);
             currentNode.one = currentNode.one.one;
             currentNode.zero = currentNode.zero.zero;
+        }
+        if (currentNode.one == allNodes.get("0") && currentNode.zero == allNodes.get("0")) {
+            allNodes.remove(currentNode.variable);
+            return allNodes.get("0");
+        }
+        if (currentNode.one == allNodes.get("1") && currentNode.zero == allNodes.get("1")) {
+            allNodes.remove(currentNode.variable);
+            return allNodes.get("1");
         }
 
         return currentNode;
