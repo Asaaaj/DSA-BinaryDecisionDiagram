@@ -1,4 +1,5 @@
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -17,16 +18,25 @@ public class Main {
                     int numberOfVariables = sc.nextInt();
                     System.out.println("Number of tests: ");
                     int numberOfTests = sc.nextInt();
+                    long times = 0;
+                    double reductionRate = 0;
                     for (int number = 0; number < numberOfTests; number++) {
                         BDD bdd = new BDD();
                         String booleanFunction = generateBooleanFunction(numberOfVariables);
+                        Instant startTime = Instant.now();
                         bdd.BDD_create(booleanFunction, getOrderOfBooleanFunction(booleanFunction));
+                        Instant endTime = Instant.now();
+                        times += Duration.between(startTime, endTime).toMillis();
+                        reductionRate += ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100);
                         System.out.println("TEST #" + (number + 1) + " of " + numberOfTests);
                         System.out.println("DNF: " + booleanFunction + "\nOrder: " + bdd.order + "\nNumber of variables: " + bdd.numberOfVariables + "\nNumber of Nodes Before Reduction: " + bdd.numberOfNodesBeforeReduction + "\nNumber of Nodes After Reduction: " + bdd.numberOfNodesAfterReduction);
-                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\n\n");
+                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\tDuration: " + Duration.between(startTime, endTime).toMillis() + " ms\n\n");
                     }
+                    System.out.println("Average time: " + ((double) times / numberOfTests) + "ms");
+                    System.out.println("Average reduction rate: " + (reductionRate / numberOfTests) + "%\n\n");
                 }
                 case 2 -> {
+                    double reductionRate = 0;
                     System.out.println("Number of variables: ");
                     int numberOfVariables = sc.nextInt();
                     System.out.println("Number of tests: ");
@@ -35,12 +45,17 @@ public class Main {
                         System.out.println("TEST #" + (number + 1) + " of " + numberOfTests);
                         BDD bdd = new BDD();
                         String booleanFunction = generateBooleanFunction(numberOfVariables);
+                        Instant startTime = Instant.now();
                         bdd = bdd.BDD_create_with_best_order(booleanFunction);
+                        Instant endTime = Instant.now();
+                        reductionRate += ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100);
                         System.out.println("DNF: " + booleanFunction + "\nBest Order: " + bdd.order + "\nNumber of variables: " + bdd.numberOfVariables + "\nNumber of Nodes Before Reduction: " + bdd.numberOfNodesBeforeReduction + "\nNumber of Nodes After Reduction: " + bdd.numberOfNodesAfterReduction);
-                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\n\n");
+                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\tDuration: " + Duration.between(startTime, endTime).toMillis() + " ms\n\n");
                     }
+                    System.out.println("Average reduction rate: " + (reductionRate / numberOfTests) + "%\n\n");
                 }
                 case 3 -> {
+                    long times = 0;
                     System.out.println("Number of variables: ");
                     int numberOfVariables = sc.nextInt();
                     System.out.println("Number of tests: ");
@@ -50,12 +65,16 @@ public class Main {
                         String booleanFunction = generateBooleanFunction(numberOfVariables);
                         String useIpnut = generateUseFunction(booleanFunction);
                         bdd.BDD_create(booleanFunction, getOrderOfBooleanFunction(booleanFunction));
+                        Instant startTime = Instant.now();
                         String output = bdd.BDD_use(bdd, useIpnut);
+                        Instant endTime = Instant.now();
+                        times += Duration.between(startTime, endTime).toMillis();
                         System.out.println("TEST #" + (number + 1) + " of " + numberOfTests);
                         System.out.println("DNF: " + booleanFunction + "\nOrder: " + bdd.order + "\nNumber of variables: " + bdd.numberOfVariables + "\nNumber of Nodes Before Reduction: " + bdd.numberOfNodesBeforeReduction + "\nNumber of Nodes After Reduction: " + bdd.numberOfNodesAfterReduction);
-                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%");
+                        System.out.println("Reduction rate: " + String.format("%.4f", ((1 - ((double)bdd.numberOfNodesAfterReduction / bdd.numberOfNodesBeforeReduction)) * 100)) + "%\tDuration: " + Duration.between(startTime, endTime).toMillis() + " ms");
                         System.out.println("Use input: " + useIpnut + "\nOutput: " + output + "\n\n");
                     }
+                    System.out.println("Average time: " + ((double) times / numberOfTests) + "ms\n\n");
                 }
             }
         }

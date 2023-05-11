@@ -91,11 +91,11 @@ public class BDD {
         if (allNodes.get(oneExpressions) == null) {
             allNodes.put(oneExpressions, new Node(oneExpressions, level + 1));
             currentNode.one = allNodes.get(oneExpressions);
-            int oneExressionLevel = level;
-            while (oneExressionLevel + 1 < order.length() && !oneExpressions.contains(String.valueOf(order.charAt(oneExressionLevel + 1)))) {
-                oneExressionLevel++;
+            int oneExpressionLevel = level;
+            while (oneExpressionLevel + 1 < order.length() && !oneExpressions.contains(String.valueOf(order.charAt(oneExpressionLevel + 1)))) {
+                oneExpressionLevel++;
             }
-            currentNode.one = BDD_recursive(currentNode.one, oneExpressions, oneExressionLevel + 1, order);
+            currentNode.one = BDD_recursive(currentNode.one, oneExpressions, oneExpressionLevel + 1, order);
         } else if (allNodes.get(oneExpressions) != null) {
             currentNode.one = allNodes.get(oneExpressions);
         }
